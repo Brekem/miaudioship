@@ -68,6 +68,18 @@ Los campos se recuerdan para la próxima vez. Si se corta la subida, vuelve a ar
 - **Cuota diaria.** La cuota inicial alcanza para unos **6 videos por día**. Al llegar al límite, la página se detiene y te avisa. Al día siguiente vuelves a arrastrar los mismos audios y sigue. En el mismo formulario puedes pedir más cuota.
 - **Sesión.** La sesión de Google dura una hora. Si vence a mitad de la subida, la página se detiene y basta con pulsar **Continuar**.
 
-## Probarla en tu PC
+## Versión de escritorio (MiAudioship.exe)
+
+Descarga `MiAudioship.exe` de la sección **Releases** del repositorio. No necesita instalación:
+
+1. Haz doble clic en el archivo. Se abre tu navegador en http://localhost:8080 con tu Audioship.
+2. El programa queda junto al reloj de Windows con un ícono rojo ▶. Doble clic lo vuelve a abrir. Clic derecho → **Salir** lo cierra.
+3. Para entrar con Google desde el .exe, `http://localhost:8080` tiene que estar en los orígenes autorizados de Google (paso 2.4).
+
+La primera vez, Windows puede mostrar «Windows protegió su PC» porque el programa no está firmado. Pulsa **Más información → Ejecutar de todas formas**.
+
+Para compilarlo tú mismo, ejecuta `powershell -ExecutionPolicy Bypass -File desktop\compilar.ps1`. Usa el compilador de C# que ya trae Windows.
+
+## Probarla en tu PC sin el .exe
 
 Haz doble clic en `abrir-local.bat`. Se abre en http://localhost:8080. Para esto, `http://localhost:8080` tiene que estar en los orígenes autorizados de Google (paso 2.4).
