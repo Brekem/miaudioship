@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi Audioship</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23ff3b30'/><path d='M12 9v14l11-7z' fill='white'/></svg>">
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+:root {
+  --bg: #0e0f12; --panel: #17191e; --panel-2: #1f2228; --line: #2b2f37;
+  --text: #eceef2; --muted: #9aa1ad; --accent: #ff3b30; --accent-text: #fff;
+  --ok: #34c759; --warn: #ffb020; --err: #ff5a52; --radius: 12px;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: #f4f5f7; --panel: #fff; --panel-2: #f0f1f4; --line: #dfe2e8; --text: #15171c; --muted: #5f6672; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 80px; }
+header { display: flex; align-items: center; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; }
+.brand i { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; font-style: normal; color: #fff; font-size: 14px; }
+.user { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+.user img { width: 28px; height: 28px; border-radius: 50%; }
+.btn { border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+.btn.primary:disabled, .btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.small { padding: 4px 9px; font-size: 13px; border-radius: 8px; }
+.grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+.panel + .panel { margin-top: 16px; }
+label.f { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input[type=text], input[type=datetime-local], input[type=number], select, textarea {
+  width: 100%; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+textarea { min-height: 92px; resize: vertical; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.check { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 14px; }
+.drop { border: 2px dashed var(--line); border-radius: var(--radius); padding: 18px; text-align: center; color: var(--muted); cursor: pointer; transition: .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); color: var(--text); }
+.drop strong { color: var(--text); }
+.visual-prev { margin-top: 10px; border-radius: 10px; overflow: hidden; background: #000; aspect-ratio: 16/9; display: none; }
+.visual-prev img, .visual-prev video { width: 100%; height: 100%; object-fit: contain; display: block; }
+.tracks { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.track { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.track .n { font-variant-numeric: tabular-nums; color: var(--muted); text-align: center; font-weight: 600; }
+.track input { background: transparent; border: 1px solid transparent; padding: 4px 6px; }
+.track input:hover { border-color: var(--line); }
+.track .meta { font-size: 12px; color: var(--muted); padding: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.track .acts { display: flex; gap: 4px; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; margin: 6px 6px 0; overflow: hidden; display: none; }
+.bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.track.working .bar { display: block; }
+.st { font-size: 12px; }
+.st.ok { color: var(--ok); } .st.err { color: var(--err); } .st.warn { color: var(--warn); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+.status { margin-top: 12px; font-size: 14px; color: var(--muted); min-height: 20px; }
+.status.err { color: var(--err); } .status.warn { color: var(--warn); }
+details.log { margin-top: 12px; font-size: 12px; color: var(--muted); }
+details.log pre { max-height: 200px; overflow: auto; background: var(--panel-2); padding: 8px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
+dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); max-width: 560px; width: calc(100% - 32px); padding: 20px; }
+dialog::backdrop { background: rgba(0,0,0,.6); }
+dialog ol { padding-left: 20px; } dialog li { margin: 6px 0; }
+code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 13px; word-break: break-all; }
+.empty { color: var(--muted); font-size: 14px; text-align: center; padding: 20px 0 6px; }
+.sr { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><i>▶</i> Mi Audioship</div>
+    <div class="user">
+      <span id="userInfo">Sin sesión</span>
+      <button class="btn" id="btnLogin">Entrar con Google</button>
+      <button class="btn small" id="btnSettings" title="Configuración">⚙</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <section class="panel">
+        <h2>Lanzamiento</h2>
+        <div class="row">
+          <div><label class="f" for="artista">Artista</label><input type="text" id="artista" placeholder="Brekem"></div>
+          <div><label class="f" for="album">Álbum / EP</label><input type="text" id="album" placeholder="veneno"></div>
+        </div>
+        <label class="f" for="privacidad">Visibilidad</label>
+        <select id="privacidad">
+          <option value="private">Privado</option>
+          <option value="unlisted">No listado</option>
+          <option value="public">Público</option>
+        </select>
+        <label class="f" for="programar">Programar publicación (opcional)</label>
+        <div class="row">
+          <input type="datetime-local" id="programar">
+          <input type="number" id="intervalo" min="0" step="1" placeholder="cada X horas" title="Horas entre cada canción (0 = todas a la vez)" style="max-width:120px">
+        </div>
+        <div class="hint">Si programas, se suben como privadas y YouTube las publica en esa fecha. Con «cada X horas» se escalonan.</div>
+        <label class="check"><input type="checkbox" id="crearPlaylist" checked> Agregar a una playlist</label>
+        <input type="text" id="playlist" placeholder="{artista} - {album}" style="margin-top:6px">
+      </section>
+
+      <section class="panel">
+        <h2>Textos de cada video</h2>
+        <label class="f" for="tTitulo">Título</label>
+        <input type="text" id="tTitulo" placeholder="{artista} - {titulo}">
+        <label class="f" for="tDesc">Descripción</label>
+        <textarea id="tDesc"></textarea>
+        <label class="f" for="tTags">Etiquetas (separadas por coma)</label>
+        <input type="text" id="tTags">
+        <div class="hint">Puedes usar {artista} {album} {titulo} {pista} {total}</div>
+      </section>
+
+      <section class="panel">
+        <h2>Visual</h2>
+        <div class="drop" id="dropVisual"><strong>Imagen o video</strong><br>Arrastra aquí o haz clic<br><span class="hint">El video se repite en bucle durante toda la canción</span></div>
+        <input type="file" id="fileVisual" class="sr" accept="image/*,video/*">
+        <div class="visual-prev" id="visualPrev"></div>
+        <label class="f" for="calidad">Calidad</label>
+        <select id="calidad">
+          <option value="1080">1080p (recomendado)</option>
+          <option value="720">720p (más rápido y liviano)</option>
+        </select>
+      </section>
+    </div>
+
+    <div>
+      <section class="panel">
+        <h2>Canciones</h2>
+        <div class="drop" id="dropAudios"><strong>Arrastra tus audios</strong> (MP3, WAV, FLAC, M4A, OGG)<br>o haz clic para elegirlos</div>
+        <input type="file" id="fileAudios" class="sr" accept="audio/*,.mp3,.wav,.flac,.m4a,.ogg,.aac" multiple>
+        <ul class="tracks" id="tracks"></ul>
+        <div class="empty" id="empty">Todavía no hay canciones.</div>
+        <div class="actions">
+          <button class="btn primary" id="btnUpload">Crear y subir a YouTube</button>
+          <button class="btn" id="btnDownload" title="Crea los videos y los descarga, sin subir">Solo descargar videos</button>
+          <button class="btn" id="btnStop" disabled>Detener</button>
+          <button class="btn small" id="btnClear">Vaciar lista</button>
+        </div>
+        <div class="status" id="status"></div>
+        <details class="log"><summary>Detalles técnicos</summary><pre id="log"></pre></details>
+      </section>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlgSettings">
+  <h3 style="margin-top:0">Configuración de Google</h3>
+  <p style="color:var(--muted);font-size:14px">Se hace una sola vez. Necesitas un <b>ID de cliente OAuth</b> de tu proyecto de Google Cloud:</p>
+  <ol style="font-size:14px">
+    <li>En <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> crea un proyecto y habilita <b>YouTube Data API v3</b>.</li>
+    <li>En <b>Google Auth Platform</b>: tipo Externo y, en Público, agrégate como usuario de prueba.</li>
+    <li>En <b>Clientes → Crear cliente → Aplicación web</b>, en «Orígenes de JavaScript autorizados» agrega:<br><code id="originHint"></code></li>
+    <li>Copia el ID de cliente aquí:</li>
+  </ol>
+  <input type="text" id="clientId" placeholder="xxxxxxxx.apps.googleusercontent.com">
+  <div class="actions" style="justify-content:flex-end">
+    <button class="btn" id="btnSettingsCancel">Cancelar</button>
+    <button class="btn primary" id="btnSettingsSave">Guardar</button>
+  </div>
+</dialog>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
